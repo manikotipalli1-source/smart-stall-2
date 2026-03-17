@@ -1,0 +1,65 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* BODY */
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+}
+
+/* CONTAINER */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* FLEX */
+.flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 16px;
+  border-radius: 10px;
+  margin-top: 16px;
+}
+
+/* BUTTON */
+.btn {
+  padding: 10px;
+  background: black;
+  color: white;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+/* INPUT */
+.input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .flex {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
