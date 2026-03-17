@@ -3,30 +3,124 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- 🔥 RESPONSIVE (MANDATORY) -->
+    <!-- 🔥 Responsive -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Smart Stall</title>
+    <title>SmartX</title>
 
-    <!-- 🎨 GLOBAL STYLES -->
+    <!-- 🎨 Global CSS -->
     <link rel="stylesheet" href="css/global.css" />
-
-    <!-- (Optional) Page-specific styles -->
-    <!-- <link rel="stylesheet" href="css/style.css"> -->
   </head>
 
   <body>
-    <!-- 🧩 PAGE CONTENT GOES HERE -->
     <div class="container">
-      <h1>Page Title</h1>
+      <!-- 🔝 Navbar -->
+      <div class="flex card">
+        <h2>SmartX</h2>
+
+        <button class="btn" onclick="goToCart()">
+          🛒 <span id="cartCount">0</span>
+        </button>
+      </div>
+
+      <!-- 🔐 Status Check Section -->
+      <div class="card">
+        <h3>Check Your Order Status</h3>
+
+        <input id="phone" class="input" placeholder="Enter Phone Number" />
+
+        <button class="btn" onclick="sendOTP()">Send OTP</button>
+
+        <input id="otp" class="input" placeholder="Enter OTP" />
+
+        <button class="btn" onclick="verifyAndGo()">Check Status</button>
+      </div>
+
+      <!-- 🔁 Mode Toggle -->
+      <div class="card flex">
+        <button class="btn" onclick="goUser()">User</button>
+        <button class="btn" onclick="goAdmin()">Admin</button>
+        <button class="btn" onclick="goDisplay()">Display</button>
+      </div>
     </div>
 
-    <!-- ⚙️ CORE JS (ORDER MATTERS) -->
+    <!-- ⚙️ Core JS -->
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
 
-    <!-- (Optional) Page-specific JS -->
-    <!-- <script src="js/cart.js"></script> -->
-    <!-- <script src="js/admin.js"></script> -->
+    <!-- 📦 Homepage Logic (FINAL - No Changes Later) -->
+    <script>
+      let tempOTP = "";
+
+      // 🛒 Cart Count Sync
+      function updateCartCount() {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        document.getElementById("cartCount").innerText = cart.length;
+      }
+
+      updateCartCount();
+
+      // 🔐 Send OTP
+      async function sendOTP() {
+        let phone = document.getElementById("phone").value;
+
+        if (!phone) {
+          alert("Enter phone number");
+          return;
+        }
+
+        tempOTP = Math.floor(1000 + Math.random() * 9000);
+
+        alert("OTP: " + tempOTP); // simulate
+
+        await API.sendOTP(phone);
+      }
+
+      // ✅ Verify + Redirect to Queue
+      async function verifyAndGo() {
+        let phone = document.getElementById("phone").value;
+        let otp = document.getElementById("otp").value;
+
+        if (!phone || !otp) {
+          alert("Enter all details");
+          return;
+        }
+
+        if (otp != tempOTP) {
+          alert("Invalid OTP");
+          return;
+        }
+
+        let verify = await API.verifyOTP(phone, otp);
+
+        if (!verify.success) {
+          alert("Verification failed");
+          return;
+        }
+
+        let res = (await API.getUserOrder?.(phone)) || { orderId: "ORD1" };
+
+        localStorage.setItem("orderId", res.orderId);
+
+        navigate("queue.html");
+      }
+
+      // 🔁 Navigation Controls
+      function goUser() {
+        navigate("menu.html");
+      }
+
+      function goAdmin() {
+        navigate("admin.html");
+      }
+
+      function goDisplay() {
+        navigate("display.html");
+      }
+
+      function goToCart() {
+        navigate("cart.html");
+      }
+    </script>
   </body>
 </html>

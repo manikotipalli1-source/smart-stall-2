@@ -22,4 +22,8 @@ const API = {
   getCompletedOrders: async () => [],
 
   getLogs: async () => [],
+
+  getUserOrder: async (phone) => {
+    return { orderId: "ORD123" };
+  },
 };
