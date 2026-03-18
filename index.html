@@ -72,7 +72,8 @@
       /* 🔵 ACTIVE MODE */
       .active-mode {
         background: #ff9800;
-        color: white;
+        color: #000; /* BLACK TEXT → ALWAYS VISIBLE */
+        font-weight: 600;
       }
 
       /* 🛒 RIGHT SIDE */
@@ -197,67 +198,77 @@
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
 
-    <script>
-      let tempOTP = "";
+   <script>
 
-      // 🛒 CART COUNT
-      function updateCartCount() {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        document.getElementById("cartCount").innerText = cart.length;
-      }
-      updateCartCount();
+  // 🛒 Initialize cart safely (FIRST TIME SETUP)
+  if (!localStorage.getItem("cart")) {
+    localStorage.setItem("cart", JSON.stringify([]));
+  }
 
-      // 🍔 TOGGLE MENU
-      function toggleMenu() {
-        let menu = document.getElementById("dropdown");
-        menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-      }
+  let tempOTP = "";
 
-      // 🔐 OTP
-      async function sendOTP() {
-        let phone = document.getElementById("phone").value;
+  // 🛒 CART COUNT (SAFE VERSION)
+  function updateCartCount() {
+    let cart = JSON.parse(localStorage.getItem("cart"));
 
-        if (!phone) {
-          alert("Enter phone number");
-          return;
-        }
+    if (!cart || !Array.isArray(cart)) {
+      cart = [];
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
 
-        tempOTP = Math.floor(1000 + Math.random() * 9000);
-        alert("OTP: " + tempOTP);
+    document.getElementById("cartCount").innerText = cart.length;
+  }
+  updateCartCount();
 
-        await API.sendOTP(phone);
-      }
+  // 🍔 TOGGLE MENU
+  function toggleMenu() {
+    let menu = document.getElementById("dropdown");
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+  }
 
-      // ✅ VERIFY
-      async function verifyAndGo() {
-        let phone = document.getElementById("phone").value;
-        let otp = document.getElementById("otp").value;
+  // 🔐 SEND OTP
+  async function sendOTP() {
+    let phone = document.getElementById("phone").value;
 
-        if (otp != tempOTP) {
-          alert("Invalid OTP");
-          return;
-        }
+    if (!phone) {
+      alert("Enter phone number");
+      return;
+    }
 
-        let res = await API.getUserOrder(phone);
+    tempOTP = Math.floor(1000 + Math.random() * 9000);
+    alert("OTP: " + tempOTP);
 
-        localStorage.setItem("orderId", res.orderId);
+    await API.sendOTP(phone);
+  }
 
-        navigate("queue.html");
-      }
+  // ✅ VERIFY + REDIRECT
+  async function verifyAndGo() {
+    let phone = document.getElementById("phone").value;
+    let otp = document.getElementById("otp").value;
 
-      // 🔁 NAVIGATION
-      function goUser() {
-        navigate("menu.html");
-      }
-      function goAdmin() {
-        navigate("admin.html");
-      }
-      function goDisplay() {
-        navigate("display.html");
-      }
-      function goToCart() {
-        navigate("cart.html");
-      }
-    </script>
+    if (!phone || !otp) {
+      alert("Enter all details");
+      return;
+    }
+
+    if (otp != tempOTP) {
+      alert("Invalid OTP");
+      return;
+    }
+
+    let res = await API.getUserOrder(phone);
+
+    localStorage.setItem("orderId", res.orderId);
+
+    navigate("queue.html");
+  }
+
+  // 🔁 NAVIGATION
+  function goUser() { navigate("menu.html"); }
+  function goAdmin() { navigate("admin.html"); }
+  function goDisplay() { navigate("display.html"); }
+  function goToCart() { navigate("cart.html"); }
+
+</script>
   </body>
 </html>
