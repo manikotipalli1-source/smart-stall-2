@@ -242,19 +242,31 @@
   }
 
   // ✅ VERIFY + REDIRECT
-  async function verifyAndGo() {
-    let phone = document.getElementById("phone").value;
-    let otp = document.getElementById("otp").value;
+  async function verifyAndGo(){
 
-    if (!phone || !otp) {
-      alert("Enter all details");
-      return;
-    }
+  let phone = document.getElementById("phone").value
+  let otp = document.getElementById("otp").value
 
-    if (otp != tempOTP) {
-      alert("Invalid OTP");
-      return;
-    }
+  if (!phone || !otp){
+    alert("Enter all details")
+    return
+  }
+
+  if (otp != tempOTP){
+    alert("Invalid OTP")
+    return
+  }
+
+  let order = await API.getUserOrder(phone)
+
+  if (!order){
+    alert("No order found")
+    return
+  }
+
+  localStorage.setItem("orderId", order.orderId)
+
+  navigate("queue.html")
 
     let res = await API.getUserOrder(phone);
 
