@@ -2,31 +2,112 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-
-    <!-- 🔥 RESPONSIVE (MANDATORY) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Smart Stall</title>
+    <title>StallX Cart</title>
 
-    <!-- 🎨 GLOBAL STYLES -->
     <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/style.css" />
 
-    <!-- (Optional) Page-specific styles -->
-    <!-- <link rel="stylesheet" href="css/style.css"> -->
   </head>
 
   <body>
-    <!-- 🧩 PAGE CONTENT GOES HERE -->
     <div class="container">
-      <h1>Page Title</h1>
+      <h2>Your Cart</h2>
+
+      <!-- 🛒 CART ITEMS -->
+      <div id="cartItems"></div>
+
+      <!-- 💰 TOTAL -->
+      <h3 id="totalPrice">Total: ₹0</h3>
+
+      <!-- 👤 USER DETAILS -->
+      <div class="card">
+        <input id="name" class="input" placeholder="Enter Your Name" />
+        <input id="phone" class="input" placeholder="Enter Phone Number" />
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="menu-actions">
+        <button onclick="goBack()">⬅ Back</button>
+        <button onclick="proceed()">Proceed ➜</button>
+      </div>
     </div>
 
-    <!-- ⚙️ CORE JS (ORDER MATTERS) -->
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
 
-    <!-- (Optional) Page-specific JS -->
-    <!-- <script src="js/cart.js"></script> -->
-    <!-- <script src="js/admin.js"></script> -->
+    <script>
+      // 🛒 LOAD CART
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+      if (!Array.isArray(cart)) {
+        cart = [];
+        localStorage.setItem("cart", JSON.stringify(cart));
+      }
+
+      // 📦 DISPLAY CART
+      function loadCart() {
+        let container = document.getElementById("cartItems");
+        container.innerHTML = "";
+
+        let total = 0;
+
+        cart.forEach((item, index) => {
+          total += item.price * item.qty;
+
+          let div = document.createElement("div");
+          div.className = "food-card";
+
+          div.innerHTML = `
+        <h3>${item.name}</h3>
+        <p>₹${item.price} × ${item.qty}</p>
+        <button class="cart-btn" onclick="removeItem(${index})">
+          Remove
+        </button>
+      `;
+
+          container.appendChild(div);
+        });
+
+        document.getElementById("totalPrice").innerText = "Total: ₹" + total;
+      }
+
+      loadCart();
+
+      // ❌ REMOVE ITEM
+      function removeItem(index) {
+        cart.splice(index, 1);
+
+        localStorage.setItem("cart", JSON.stringify(cart));
+
+        loadCart();
+      }
+
+      // ➡️ PROCEED
+      function proceed() {
+        let name = document.getElementById("name").value;
+        let phone = document.getElementById("phone").value;
+
+        if (!name || !phone) {
+          alert("Please enter name and phone");
+          return;
+        }
+
+        if (cart.length === 0) {
+          alert("Cart is empty");
+          return;
+        }
+
+        localStorage.setItem("user", JSON.stringify({ name, phone }));
+
+        navigate("confirmation.html");
+      }
+
+      // 🔙 BACK
+      function goBack() {
+        navigate("menu.html");
+      }
+    </script>
   </body>
 </html>
