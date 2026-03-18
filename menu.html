@@ -1,32 +1,196 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+<meta charset="UTF-8">
 
-    <!-- 🔥 RESPONSIVE (MANDATORY) -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- 🔥 Responsive -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Smart Stall</title>
+<title>StallX Menu</title>
 
-    <!-- 🎨 GLOBAL STYLES -->
-    <link rel="stylesheet" href="css/global.css" />
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/global.css">
 
-    <!-- (Optional) Page-specific styles -->
-    <!-- <link rel="stylesheet" href="css/style.css"> -->
-  </head>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
 
-  <body>
-    <!-- 🧩 PAGE CONTENT GOES HERE -->
-    <div class="container">
-      <h1>Page Title</h1>
+</head>
+
+<body>
+
+<header class="header">
+  <h1>Stall<span style="color: #ff9800">X</span> Menu</h1>
+
+  <button class="cart-header" onclick="goToCart()">
+    <i class="fa-solid fa-cart-shopping cart"></i>
+    Cart <span id="cartCount">0</span>
+  </button>
+</header>
+
+<section class="menu-container">
+
+  <!-- Food Card -->
+  <div class="food-card">
+    <h3>Parota</h3>
+    <p class="price">₹40</p>
+
+    <div class="quantity">
+      <button onclick="decrease(this)">−</button>
+      <span class="qty">1</span>
+      <button onclick="increase(this)">+</button>
     </div>
 
-    <!-- ⚙️ CORE JS (ORDER MATTERS) -->
-    <script src="js/api.js"></script>
-    <script src="js/app.js"></script>
+    <button class="cart-btn" onclick="addToCart('Parota',40,this)">
+      Add to Cart
+    </button>
+  </div>
 
-    <!-- (Optional) Page-specific JS -->
-    <!-- <script src="js/cart.js"></script> -->
-    <!-- <script src="js/admin.js"></script> -->
-  </body>
+  <div class="food-card">
+    <h3>Chapati</h3>
+    <p class="price">₹35</p>
+
+    <div class="quantity">
+      <button onclick="decrease(this)">−</button>
+      <span class="qty">1</span>
+      <button onclick="increase(this)">+</button>
+    </div>
+
+    <button class="cart-btn" onclick="addToCart('Chapati',35,this)">
+      Add to Cart
+    </button>
+  </div>
+
+  <div class="food-card">
+    <h3>Egg Dosa</h3>
+    <p class="price">₹50</p>
+
+    <div class="quantity">
+      <button onclick="decrease(this)">−</button>
+      <span class="qty">1</span>
+      <button onclick="increase(this)">+</button>
+    </div>
+
+    <button class="cart-btn" onclick="addToCart('Egg Dosa',50,this)">
+      Add to Cart
+    </button>
+  </div>
+
+  <div class="food-card">
+    <h3>Onion Dosa</h3>
+    <p class="price">₹45</p>
+
+    <div class="quantity">
+      <button onclick="decrease(this)">−</button>
+      <span class="qty">1</span>
+      <button onclick="increase(this)">+</button>
+    </div>
+
+    <button class="cart-btn" onclick="addToCart('Onion Dosa',45,this)">
+      Add to Cart
+    </button>
+  </div>
+
+  <div class="food-card">
+    <h3>Plain Dosa</h3>
+    <p class="price">₹30</p>
+
+    <div class="quantity">
+      <button onclick="decrease(this)">−</button>
+      <span class="qty">1</span>
+      <button onclick="increase(this)">+</button>
+    </div>
+
+    <button class="cart-btn" onclick="addToCart('Plain Dosa',30,this)">
+      Add to Cart
+    </button>
+  </div>
+
+  <div class="food-card">
+    <h3>Idly</h3>
+    <p class="price">₹25</p>
+
+    <div class="quantity">
+      <button onclick="decrease(this)">−</button>
+      <span class="qty">1</span>
+      <button onclick="increase(this)">+</button>
+    </div>
+
+    <button class="cart-btn" onclick="addToCart('Idly',25,this)">
+      Add to Cart
+    </button>
+  </div>
+
+</section>
+
+<div class="menu-actions">
+  <button onclick="goToHome()">⬅ Back</button>
+  <button onclick="goToCart()">View Cart / Order ➜</button>
+</div>
+
+<!-- ⚙️ Core JS -->
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+
+<!-- 📦 MENU LOGIC (FINAL) -->
+<script>
+
+  // 🛒 INIT CART
+  if (!localStorage.getItem("cart")) {
+    localStorage.setItem("cart", JSON.stringify([]));
+  }
+
+  // 🛒 UPDATE COUNT
+  function updateCartCount() {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    document.getElementById("cartCount").innerText = cart.length;
+  }
+  updateCartCount();
+
+  // ➕ INCREASE QTY
+  function increase(btn) {
+    let qty = btn.parentElement.querySelector(".qty");
+    qty.innerText = parseInt(qty.innerText) + 1;
+  }
+
+  // ➖ DECREASE QTY
+  function decrease(btn) {
+    let qty = btn.parentElement.querySelector(".qty");
+    if (parseInt(qty.innerText) > 1) {
+      qty.innerText = parseInt(qty.innerText) - 1;
+    }
+  }
+
+  // 🛒 ADD TO CART
+  function addToCart(name, price, btn) {
+
+    let qty = parseInt(
+      btn.parentElement.querySelector(".quantity .qty").innerText
+    );
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    if (!Array.isArray(cart)) cart = [];
+
+    cart.push({
+      name: name,
+      price: price,
+      qty: qty
+    });
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    updateCartCount();
+
+    alert(name + " added to cart!");
+  }
+
+  // 🔁 NAVIGATION
+  function goToCart() { navigate("cart.html"); }
+  function goToHome() { navigate("index.html"); }
+
+</script>
+
+</body>
 </html>
