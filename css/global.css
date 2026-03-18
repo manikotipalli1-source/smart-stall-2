@@ -63,3 +63,24 @@ body {
     gap: 10px;
   }
 }
+
+/* INPUT (GLOBAL) */
+.input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  transition: 0.2s;
+}
+
+/* INPUT FOCUS */
+.input:focus {
+  border-color: #ff9800;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.15);
+}
+
+.card {
+  animation: fadeIn 0.3s ease-in-out;
+}
