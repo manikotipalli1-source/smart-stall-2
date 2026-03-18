@@ -2,30 +2,186 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-
-    <!-- 🔥 Responsive -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Stall</title>
 
-    <title>SmartX</title>
-
-    <!-- 🎨 Global CSS -->
     <link rel="stylesheet" href="css/global.css" />
+
+    <style>
+      /* 🌍 BODY */
+      body {
+        background: #fafafa;
+        font-family: "Poppins", sans-serif;
+      }
+
+      /* 🔝 NAVBAR */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 0;
+      }
+
+      /* 🐦‍🔥 brand */
+      .brand {
+        font-weight: 700;
+        font-size: 20px;
+        color: #000; /* Black */
+        letter-spacing: 1px;
+      }
+
+      /* 🍔 MENU BUTTON */
+      .menu-btn {
+        font-size: 24px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .menu-btn:hover {
+        color: #e23744;
+      }
+
+      /* 📂 DROPDOWN */
+      .dropdown {
+        position: absolute;
+        top: 60px;
+        left: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        animation: fadeIn 0.2s ease-in-out;
+      }
+
+      .dropdown button {
+        padding: 12px 20px;
+        border: none;
+        background: white;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 14px;
+      }
+
+      .dropdown button:hover {
+        background: #fff0f0;
+        color: #e23744;
+      }
+
+      /* 🔵 ACTIVE MODE */
+      .active-mode {
+        background: #ff9800;
+        color: white;
+      }
+
+      /* 🛒 RIGHT SIDE */
+      .nav-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      /* 🔥 BUTTON STYLE (ZOMATO STYLE) */
+      .btn {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        background: #ff9800;
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.25s ease;
+      }
+
+      /* ✨ BUTTON HOVER */
+      .btn:hover {
+        background: #e68900;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(255, 152, 0, 0.3);
+      }
+
+      /* 🛒 CART BADGE */
+      #cartCount {
+        background: white;
+        color: #ff9800;
+        padding: 2px 6px;
+        border-radius: 50%;
+        font-size: 12px;
+        margin-left: 5px;
+      }
+
+      /* 🔐 CARD */
+      .verify-card {
+        margin-top: 40px;
+        padding: 24px;
+        border-radius: 16px;
+        background: white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        text-align: center;
+      }
+
+      /* INPUT */
+      .input {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        transition: 0.2s;
+      }
+
+      /* INPUT FOCUS */
+      .input:focus {
+        border-color: #ff9800;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.15);
+      }
+
+      /* ✨ FADE ANIMATION */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
   </head>
 
   <body>
     <div class="container">
-      <!-- 🔝 Navbar -->
-      <div class="flex card">
-        <h2>SmartX</h2>
+      <!-- 🔝 NAVBAR -->
+      <div class="navbar">
+        <!-- 🍔 LEFT MENU -->
+        <div>
+          <span class="menu-btn" onclick="toggleMenu()">☰</span>
 
-        <button class="btn" onclick="goToCart()">
-          🛒 <span id="cartCount">0</span>
-        </button>
+          <div id="dropdown" class="dropdown">
+            <button class="active-mode">User</button>
+            <button onclick="goAdmin()">Admin</button>
+            <button onclick="goDisplay()">Display</button>
+          </div>
+        </div>
+
+        <!-- CENTER: BRAND -->
+        <h2 class="brand">Stall<span style="color: #ff9800">X</span></h2>
+
+        <!-- 🛒 RIGHT ACTIONS -->
+        <div class="nav-actions">
+          <button class="btn" onclick="goUser()">Order Now</button>
+
+          <button class="btn" onclick="goToCart()">
+            🛒 <span id="cartCount">0</span>
+          </button>
+        </div>
       </div>
 
-      <!-- 🔐 Status Check Section -->
-      <div class="card">
-        <h3>Check Your Order Status</h3>
+      <!-- 🔐 VERIFICATION -->
+      <div class="card verify-card">
+        <h3>Track Your Order</h3>
 
         <input id="phone" class="input" placeholder="Enter Phone Number" />
 
@@ -35,32 +191,29 @@
 
         <button class="btn" onclick="verifyAndGo()">Check Status</button>
       </div>
-
-      <!-- 🔁 Mode Toggle -->
-      <div class="card flex">
-        <button class="btn" onclick="goUser()">User</button>
-        <button class="btn" onclick="goAdmin()">Admin</button>
-        <button class="btn" onclick="goDisplay()">Display</button>
-      </div>
     </div>
 
-    <!-- ⚙️ Core JS -->
+    <!-- JS -->
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
 
-    <!-- 📦 Homepage Logic (FINAL - No Changes Later) -->
     <script>
       let tempOTP = "";
 
-      // 🛒 Cart Count Sync
+      // 🛒 CART COUNT
       function updateCartCount() {
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
         document.getElementById("cartCount").innerText = cart.length;
       }
-
       updateCartCount();
 
-      // 🔐 Send OTP
+      // 🍔 TOGGLE MENU
+      function toggleMenu() {
+        let menu = document.getElementById("dropdown");
+        menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+      }
+
+      // 🔐 OTP
       async function sendOTP() {
         let phone = document.getElementById("phone").value;
 
@@ -70,54 +223,38 @@
         }
 
         tempOTP = Math.floor(1000 + Math.random() * 9000);
-
-        alert("OTP: " + tempOTP); // simulate
+        alert("OTP: " + tempOTP);
 
         await API.sendOTP(phone);
       }
 
-      // ✅ Verify + Redirect to Queue
+      // ✅ VERIFY
       async function verifyAndGo() {
         let phone = document.getElementById("phone").value;
         let otp = document.getElementById("otp").value;
-
-        if (!phone || !otp) {
-          alert("Enter all details");
-          return;
-        }
 
         if (otp != tempOTP) {
           alert("Invalid OTP");
           return;
         }
 
-        let verify = await API.verifyOTP(phone, otp);
-
-        if (!verify.success) {
-          alert("Verification failed");
-          return;
-        }
-
-        let res = (await API.getUserOrder?.(phone)) || { orderId: "ORD1" };
+        let res = await API.getUserOrder(phone);
 
         localStorage.setItem("orderId", res.orderId);
 
         navigate("queue.html");
       }
 
-      // 🔁 Navigation Controls
+      // 🔁 NAVIGATION
       function goUser() {
         navigate("menu.html");
       }
-
       function goAdmin() {
         navigate("admin.html");
       }
-
       function goDisplay() {
         navigate("display.html");
       }
-
       function goToCart() {
         navigate("cart.html");
       }
