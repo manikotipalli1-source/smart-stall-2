@@ -170,3 +170,48 @@ body {
   }
 
 }
+
+/* ================= QUEUE PAGE ================= */
+
+.status {
+  font-size: 22px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* 🎟️ TOKEN BIG DISPLAY */
+#token {
+  font-size: 40px;
+  color: #ff9800;
+  margin-top: 10px;
+}
+
+/* ⏳ STATUS COLORS */
+
+.status-queue {
+  color: #ff9800;
+}
+
+.status-preparing {
+  color: #2196f3;
+}
+
+.status-ready {
+  color: #4caf50;
+}
+
+/* 🍽️ ITEM LIST */
+#items p {
+  font-size: 16px;
+  margin: 5px 0;
+}
+
+/* 🧊 CARD IMPROVEMENT */
+.card {
+  text-align: center;
+}
+
+/* ✨ ANIMATION */
+.status {
+  animation: fadeIn 0.3s ease-in-out;
+}
