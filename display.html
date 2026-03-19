@@ -1,32 +1,208 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- 🔥 RESPONSIVE (MANDATORY) -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StallX Display</title>
 
-    <title>Smart Stall</title>
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/style.css">
 
-    <!-- 🎨 GLOBAL STYLES -->
-    <link rel="stylesheet" href="css/global.css" />
+<style>
+/* 📺 DISPLAY MODE */
 
-    <!-- (Optional) Page-specific styles -->
-    <!-- <link rel="stylesheet" href="css/style.css"> -->
-  </head>
+body {
+  background: #000;
+  color: white;
+  text-align: center;
+}
 
-  <body>
-    <!-- 🧩 PAGE CONTENT GOES HERE -->
-    <div class="container">
-      <h1>Page Title</h1>
-    </div>
+/* TITLE */
+h1 {
+  margin: 20px;
+  font-size: 32px;
+}
 
-    <!-- ⚙️ CORE JS (ORDER MATTERS) -->
-    <script src="js/api.js"></script>
-    <script src="js/app.js"></script>
+/* 🔴 LIVE HEADER */
+.live-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: 26px;
+  margin: 20px;
+}
 
-    <!-- (Optional) Page-specific JS -->
-    <!-- <script src="js/cart.js"></script> -->
-    <!-- <script src="js/admin.js"></script> -->
-  </body>
+/* 🔴 BLINKING DOT */
+.live-dot {
+  width: 12px;
+  height: 12px;
+  background: red;
+  border-radius: 50%;
+  animation: blink 1s infinite;
+}
+
+/* LIVE TEXT */
+.live-text {
+  color: red;
+  font-weight: bold;
+}
+
+/* TITLE */
+.title {
+  color: white;
+  font-weight: 500;
+}
+
+/* BLINK ANIMATION */
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+/* 📺 TICKER */
+.ticker {
+  width: 100%;
+  overflow: hidden;
+  background: #111;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+}
+
+.ticker-text {
+  display: inline-block;
+  white-space: nowrap;
+  padding: 10px;
+  animation: scroll 12s linear infinite;
+  color: #ff9800;
+  font-size: 16px;
+}
+
+/* SCROLL ANIMATION */
+@keyframes scroll {
+  from { transform: translateX(100%); }
+  to { transform: translateX(-100%); }
+}
+
+/* GRID */
+.display-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* BOX */
+.display-box {
+  background: #111;
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 300px;
+}
+
+/* HEADINGS */
+.display-box h2 {
+  margin-bottom: 15px;
+}
+
+/* TOKENS */
+.token {
+  font-size: 28px;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+/* COLORS */
+.preparing {
+  background: #2196f3;
+}
+
+.ready {
+  background: #4caf50;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .display-container {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="live-header">
+  <span class="live-dot"></span>
+  <span class="live-text">LIVE</span>
+  <span class="title">Stall<span style="color: #ff9800">X</span> Orders</span>
+</div>
+
+<div class="ticker">
+  <div class="ticker-text">
+    Orders are being processed live • Please collect when your token appears in READY • Thank you for choosing <span style="color: #FFFFFF">Stall</span><span style="color: #ff9800">X</span> 🍽️
+  </div>
+</div>
+
+<div class="display-container">
+
+  <!-- 🔵 PREPARING -->
+  <div class="display-box">
+    <h2>Preparing</h2>
+    <div id="preparing"></div>
+  </div>
+
+  <!-- 🟢 READY -->
+  <div class="display-box">
+    <h2>Ready</h2>
+    <div id="ready"></div>
+  </div>
+
+</div>
+
+<script>
+
+function loadDisplay(){
+
+  let orders = JSON.parse(localStorage.getItem("orders")) || []
+
+  let preparingDiv = document.getElementById("preparing")
+  let readyDiv = document.getElementById("ready")
+
+  preparingDiv.innerHTML = ""
+  readyDiv.innerHTML = ""
+
+  let preparingOrders = orders.filter(o => o.status === "PREPARING")
+  let readyOrders = orders.filter(o => o.status === "READY")
+
+  // 🔵 PREPARING
+  preparingOrders.forEach(order => {
+    let div = document.createElement("div")
+    div.className = "token preparing"
+    div.innerText = order.token
+    preparingDiv.appendChild(div)
+  })
+
+  // 🟢 READY
+  readyOrders.forEach(order => {
+    let div = document.createElement("div")
+    div.className = "token ready"
+    div.innerText = order.token
+    readyDiv.appendChild(div)
+  })
+
+}
+
+loadDisplay()
+
+// 🔄 AUTO REFRESH
+setInterval(loadDisplay, 3000)
+
+</script>
+
+</body>
 </html>
