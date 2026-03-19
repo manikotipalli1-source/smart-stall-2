@@ -215,3 +215,113 @@ body {
 .status {
   animation: fadeIn 0.3s ease-in-out;
 }
+
+/* ================= ADMIN PAGE ================= */
+
+/* 🔘 SECTION BUTTONS */
+.menu-actions button {
+  background: #ff9800;
+  color: white;
+  font-weight: 500;
+}
+
+.menu-actions button:hover {
+  background: #e68900;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.3);
+}
+
+/* 🧠 ADMIN CARDS */
+#activeSection .food-card,
+#completedSection .food-card,
+#logsSection .food-card {
+  text-align: left;
+  padding: 20px;
+}
+
+/* 📦 ORDER TITLE */
+.food-card h3 {
+  color: #111;
+  margin-bottom: 5px;
+}
+
+/* 📱 PHONE */
+.food-card p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+/* 🎟️ TOKEN STYLE */
+.food-card p:nth-child(3) {
+  font-weight: bold;
+  color: #ff9800;
+}
+
+/* ⏳ STATUS COLORS */
+.status-queue {
+  color: #ff9800;
+  font-weight: bold;
+}
+
+.status-preparing {
+  color: #2196f3;
+  font-weight: bold;
+}
+
+.status-ready {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.status-completed {
+  color: #777;
+}
+
+/* 🔥 BUTTON GROUP */
+.food-card button {
+  margin: 5px 5px 0 0;
+}
+
+/* ✨ BUTTON VARIANTS */
+.btn-start {
+  background: #2196f3;
+}
+
+.btn-ready {
+  background: #4caf50;
+}
+
+.btn-verify {
+  background: #ff9800;
+}
+
+/* HOVER */
+.btn-start:hover {
+  background: #1976d2;
+}
+
+.btn-ready:hover {
+  background: #388e3c;
+}
+
+.btn-verify:hover {
+  background: #e68900;
+}
+
+/* 📊 SECTION HEADINGS */
+.container h2 {
+  margin-bottom: 20px;
+}
+
+/* 📱 RESPONSIVE */
+@media (max-width: 600px) {
+
+  .food-card {
+    font-size: 14px;
+  }
+
+  .menu-actions {
+    flex-direction: column;
+  }
+
+}

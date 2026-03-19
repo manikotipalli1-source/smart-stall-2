@@ -2,31 +2,185 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-
-    <!-- 🔥 RESPONSIVE (MANDATORY) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Smart Stall</title>
+    <title>StallX Admin</title>
 
-    <!-- 🎨 GLOBAL STYLES -->
     <link rel="stylesheet" href="css/global.css" />
-
-    <!-- (Optional) Page-specific styles -->
-    <!-- <link rel="stylesheet" href="css/style.css"> -->
+    <link rel="stylesheet" href="css/style.css" />
   </head>
 
   <body>
-    <!-- 🧩 PAGE CONTENT GOES HERE -->
     <div class="container">
-      <h1>Page Title</h1>
+      <h2>Admin Panel</h2>
+
+      <!-- 🔘 MENU -->
+      <div class="menu-actions">
+        <button onclick="showSection('active')">Active Orders</button>
+        <button onclick="showSection('completed')">Completed</button>
+        <button onclick="showSection('logs')">Logs</button>
+      </div>
+
+      <!-- ACTIVE -->
+      <div id="activeSection"></div>
+
+      <!-- COMPLETED -->
+      <div id="completedSection" style="display: none"></div>
+
+      <!-- LOGS -->
+      <div id="logsSection" style="display: none"></div>
     </div>
 
-    <!-- ⚙️ CORE JS (ORDER MATTERS) -->
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
 
-    <!-- (Optional) Page-specific JS -->
-    <!-- <script src="js/cart.js"></script> -->
-    <!-- <script src="js/admin.js"></script> -->
+    <script>
+      let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+      function showSection(section) {
+        document.getElementById("activeSection").style.display = "none";
+        document.getElementById("completedSection").style.display = "none";
+        document.getElementById("logsSection").style.display = "none";
+
+        if (section === "active") {
+          document.getElementById("activeSection").style.display = "block";
+          loadActive();
+        } else if (section === "completed") {
+          document.getElementById("completedSection").style.display = "block";
+          loadCompleted();
+        } else {
+          document.getElementById("logsSection").style.display = "block";
+          loadLogs();
+        }
+      }
+
+      // 🔥 ACTIVE ORDERS
+      function loadActive() {
+        let container = document.getElementById("activeSection");
+        container.innerHTML = "";
+
+        orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+        let activeOrders = orders.filter((o) => o.status !== "COMPLETED");
+
+        activeOrders.forEach((order) => {
+          let div = document.createElement("div");
+          div.className = "food-card";
+
+          let items = (order.cart || [])
+            .map((i) => `${i.name} × ${i.qty}`)
+            .join("<br>");
+          div.innerHTML = `
+        <h3>${order.user.name}</h3>
+        <p>${order.user.phone}</p>
+        <p>Token: ${order.token}</p>
+        <p>Status: <span class="status-${order.status.toLowerCase()}">${order.status}</span></p>
+        <p>${items}</p>
+
+        <button class="cart-btn btn-start" onclick="updateStatus('${order.orderId}','PREPARING')">
+  Start
+</button>
+
+<button class="cart-btn btn-ready" onclick="updateStatus('${order.orderId}','READY')">
+  Ready
+</button>
+
+<button class="cart-btn btn-verify" onclick="verifyOTP('${order.orderId}')">
+  Verify OTP
+</button>
+      `;
+
+          container.appendChild(div);
+        });
+      }
+
+      // 🔄 UPDATE STATUS
+      function updateStatus(orderId, status) {
+        orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+        orders.forEach((o) => {
+          if (o.orderId === orderId) {
+            o.status = status;
+          }
+        });
+
+        localStorage.setItem("orders", JSON.stringify(orders));
+
+        loadActive();
+      }
+
+      // 🔐 VERIFY OTP (SIMULATION)
+      function verifyOTP(orderId) {
+        let otp = prompt("Enter OTP from customer");
+
+        if (!otp) {
+          alert("OTP required");
+          return;
+        }
+
+        // for now accept any OTP
+        orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+        orders.forEach((o) => {
+          if (o.orderId === orderId) {
+            o.status = "COMPLETED";
+          }
+        });
+
+        localStorage.setItem("orders", JSON.stringify(orders));
+
+        alert("Order completed!");
+
+        loadActive();
+      }
+
+      // ✅ COMPLETED
+      function loadCompleted() {
+        let container = document.getElementById("completedSection");
+        container.innerHTML = "";
+
+        orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+        let completed = orders.filter((o) => o.status === "COMPLETED");
+
+        completed.forEach((order) => {
+          let div = document.createElement("div");
+          div.className = "food-card";
+
+          div.innerHTML = `
+        <h3>${order.user.name}</h3>
+        <p>Token: ${order.token}</p>
+        <p>Completed</p>
+      `;
+
+          container.appendChild(div);
+        });
+      }
+
+      // 📊 LOGS
+      function loadLogs() {
+        let container = document.getElementById("logsSection");
+        container.innerHTML = "";
+
+        orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+        orders.forEach((order) => {
+          let div = document.createElement("div");
+          div.className = "food-card";
+
+          div.innerHTML = `
+        <h3>${order.user.name}</h3>
+        <p>${order.user.phone}</p>
+        <p>Status: ${order.status}</p>
+        <p>Token: ${order.token}</p>
+      `;
+
+          container.appendChild(div);
+        });
+      }
+
+      // default load
+      showSection("active");
+    </script>
   </body>
 </html>

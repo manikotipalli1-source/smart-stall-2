@@ -10,7 +10,10 @@ const API = {
 
     let newOrder = {
       orderId: "ORD" + Date.now(),
-      ...data,
+      user: data.user || {},
+      cart: data.cart || [],
+      token: data.token || "",
+      status: data.status || "QUEUE",
     };
 
     orders.push(newOrder);
