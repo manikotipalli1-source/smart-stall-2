@@ -1,186 +1,236 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>StallX Admin</title>
+<title>StallX Admin</title>
 
-    <link rel="stylesheet" href="css/global.css" />
-    <link rel="stylesheet" href="css/style.css" />
-  </head>
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/style.css">
 
-  <body>
-    <div class="container">
-      <h2>Admin Panel</h2>
+</head>
 
-      <!-- 🔘 MENU -->
-      <div class="menu-actions">
-        <button onclick="showSection('active')">Active Orders</button>
-        <button onclick="showSection('completed')">Completed</button>
-        <button onclick="showSection('logs')">Logs</button>
-      </div>
+<body>
 
-      <!-- ACTIVE -->
-      <div id="activeSection"></div>
+<div class="container">
 
-      <!-- COMPLETED -->
-      <div id="completedSection" style="display: none"></div>
+  <h2>Admin Panel</h2>
 
-      <!-- LOGS -->
-      <div id="logsSection" style="display: none"></div>
-    </div>
+  <!-- 🔘 NAV -->
+  <div class="menu-actions">
+    <button onclick="showSection('active')">Active Orders</button>
+    <button onclick="showSection('completed')">Completed</button>
+    <button onclick="showSection('logs')">Logs</button>
+  </div>
 
-    <script src="js/api.js"></script>
-    <script src="js/app.js"></script>
+  <div id="activeSection"></div>
+  <div id="completedSection" style="display:none;"></div>
+  <div id="logsSection" style="display:none;"></div>
 
-    <script>
-      let orders = JSON.parse(localStorage.getItem("orders")) || [];
+</div>
 
-      function showSection(section) {
-        document.getElementById("activeSection").style.display = "none";
-        document.getElementById("completedSection").style.display = "none";
-        document.getElementById("logsSection").style.display = "none";
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
 
-        if (section === "active") {
-          document.getElementById("activeSection").style.display = "block";
-          loadActive();
-        } else if (section === "completed") {
-          document.getElementById("completedSection").style.display = "block";
-          loadCompleted();
-        } else {
-          document.getElementById("logsSection").style.display = "block";
-          loadLogs();
-        }
+<script>
+
+  // 🔁 SWITCH SECTIONS
+  function showSection(section){
+
+    document.getElementById("activeSection").style.display = "none"
+    document.getElementById("completedSection").style.display = "none"
+    document.getElementById("logsSection").style.display = "none"
+
+    if(section === "active"){
+      document.getElementById("activeSection").style.display = "block"
+      loadActive()
+    }
+    else if(section === "completed"){
+      document.getElementById("completedSection").style.display = "block"
+      loadCompleted()
+    }
+    else{
+      document.getElementById("logsSection").style.display = "block"
+      loadLogs()
+    }
+  }
+
+  // 🔥 ACTIVE ORDERS (SMART)
+  function loadActive(){
+
+    let container = document.getElementById("activeSection")
+    container.innerHTML = ""
+
+    let orders = JSON.parse(localStorage.getItem("orders")) || []
+
+    let activeOrders = orders.filter(o => o.status !== "COMPLETED")
+
+    if(activeOrders.length === 0){
+      container.innerHTML = "<p>No active orders</p>"
+      return
+    }
+
+    activeOrders.forEach(order => {
+
+      let div = document.createElement("div")
+      div.className = "food-card"
+
+      // 🛡️ Safe items
+      let items = (order.cart || [])
+        .map(i => `${i.name} × ${i.qty}`)
+        .join("<br>")
+
+      // 🎯 SMART BUTTON SECTION
+      let buttons = ""
+
+      if(order.status === "QUEUE"){
+        buttons = `
+          <button class="cart-btn btn-start"
+            onclick="updateStatus('${order.orderId}','PREPARING')">
+            Start
+          </button>
+        `
+      }
+      else if(order.status === "PREPARING"){
+        buttons = `
+          <button class="cart-btn btn-ready"
+            onclick="updateStatus('${order.orderId}','READY')">
+            Ready
+          </button>
+        `
+      }
+      else if(order.status === "READY"){
+        buttons = `
+          <button class="cart-btn btn-verify"
+            onclick="verifyOTP('${order.orderId}')">
+            Verify OTP
+          </button>
+        `
       }
 
-      // 🔥 ACTIVE ORDERS
-      function loadActive() {
-        let container = document.getElementById("activeSection");
-        container.innerHTML = "";
-
-        orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-        let activeOrders = orders.filter((o) => o.status !== "COMPLETED");
-
-        activeOrders.forEach((order) => {
-          let div = document.createElement("div");
-          div.className = "food-card";
-
-          let items = (order.cart || [])
-            .map((i) => `${i.name} × ${i.qty}`)
-            .join("<br>");
-          div.innerHTML = `
-        <h3>${order.user.name}</h3>
-        <p>${order.user.phone}</p>
+      // 🧾 CARD
+      div.innerHTML = `
+        <h3>${order.user?.name || "Unknown"}</h3>
+        <p>${order.user?.phone || "-"}</p>
         <p>Token: ${order.token}</p>
         <p>Status: <span class="status-${order.status.toLowerCase()}">${order.status}</span></p>
         <p>${items}</p>
 
-        <button class="cart-btn btn-start" onclick="updateStatus('${order.orderId}','PREPARING')">
-  Start
-</button>
+        ${buttons}
+      `
 
-<button class="cart-btn btn-ready" onclick="updateStatus('${order.orderId}','READY')">
-  Ready
-</button>
+      container.appendChild(div)
+    })
+  }
 
-<button class="cart-btn btn-verify" onclick="verifyOTP('${order.orderId}')">
-  Verify OTP
-</button>
-      `;
+  // 🔄 UPDATE STATUS
+  window.updateStatus = function(orderId, status){
 
-          container.appendChild(div);
-        });
+    let orders = JSON.parse(localStorage.getItem("orders")) || []
+
+    orders.forEach(o => {
+      if(o.orderId === orderId){
+        o.status = status
       }
+    })
 
-      // 🔄 UPDATE STATUS
-      function updateStatus(orderId, status) {
-        orders = JSON.parse(localStorage.getItem("orders")) || [];
+    localStorage.setItem("orders", JSON.stringify(orders))
 
-        orders.forEach((o) => {
-          if (o.orderId === orderId) {
-            o.status = status;
-          }
-        });
+    loadActive()
+  }
 
-        localStorage.setItem("orders", JSON.stringify(orders));
+  // 🔐 VERIFY OTP (SIMULATED)
+  window.verifyOTP = function(orderId){
 
-        loadActive();
+    let enteredOTP = prompt("Enter OTP from customer")
+
+    if(!enteredOTP){
+      alert("OTP required")
+      return
+    }
+
+    // 🔥 TEMP (backend later)
+    let correctOTP = "1234"
+
+    if(enteredOTP !== correctOTP){
+      alert("Invalid OTP")
+      return
+    }
+
+    let orders = JSON.parse(localStorage.getItem("orders")) || []
+
+    orders.forEach(o => {
+      if(o.orderId === orderId){
+        o.status = "COMPLETED"
       }
+    })
 
-      // 🔐 VERIFY OTP (SIMULATION)
-      function verifyOTP(orderId) {
-        let otp = prompt("Enter OTP from customer");
+    localStorage.setItem("orders", JSON.stringify(orders))
 
-        if (!otp) {
-          alert("OTP required");
-          return;
-        }
+    alert("Order completed!")
 
-        // for now accept any OTP
-        orders = JSON.parse(localStorage.getItem("orders")) || [];
+    loadActive()
+  }
 
-        orders.forEach((o) => {
-          if (o.orderId === orderId) {
-            o.status = "COMPLETED";
-          }
-        });
+  // ✅ COMPLETED
+  function loadCompleted(){
 
-        localStorage.setItem("orders", JSON.stringify(orders));
+    let container = document.getElementById("completedSection")
+    container.innerHTML = ""
 
-        alert("Order completed!");
+    let orders = JSON.parse(localStorage.getItem("orders")) || []
 
-        loadActive();
-      }
+    let completed = orders.filter(o => o.status === "COMPLETED")
 
-      // ✅ COMPLETED
-      function loadCompleted() {
-        let container = document.getElementById("completedSection");
-        container.innerHTML = "";
+    completed.forEach(order => {
 
-        orders = JSON.parse(localStorage.getItem("orders")) || [];
+      let div = document.createElement("div")
+      div.className = "food-card"
 
-        let completed = orders.filter((o) => o.status === "COMPLETED");
-
-        completed.forEach((order) => {
-          let div = document.createElement("div");
-          div.className = "food-card";
-
-          div.innerHTML = `
-        <h3>${order.user.name}</h3>
+      div.innerHTML = `
+        <h3>${order.user?.name}</h3>
         <p>Token: ${order.token}</p>
         <p>Completed</p>
-      `;
+      `
 
-          container.appendChild(div);
-        });
-      }
+      container.appendChild(div)
+    })
+  }
 
-      // 📊 LOGS
-      function loadLogs() {
-        let container = document.getElementById("logsSection");
-        container.innerHTML = "";
+  // 📊 LOGS
+  function loadLogs(){
 
-        orders = JSON.parse(localStorage.getItem("orders")) || [];
+    let container = document.getElementById("logsSection")
+    container.innerHTML = ""
 
-        orders.forEach((order) => {
-          let div = document.createElement("div");
-          div.className = "food-card";
+    let orders = JSON.parse(localStorage.getItem("orders")) || []
 
-          div.innerHTML = `
-        <h3>${order.user.name}</h3>
-        <p>${order.user.phone}</p>
+    orders.forEach(order => {
+
+      let div = document.createElement("div")
+      div.className = "food-card"
+
+      div.innerHTML = `
+        <h3>${order.user?.name}</h3>
+        <p>${order.user?.phone}</p>
         <p>Status: ${order.status}</p>
         <p>Token: ${order.token}</p>
-      `;
+      `
 
-          container.appendChild(div);
-        });
-      }
+      container.appendChild(div)
+    })
+  }
 
-      // default load
-      showSection("active");
-    </script>
-  </body>
+  // 🔄 AUTO REFRESH
+  setInterval(() => {
+    loadActive()
+  }, 3000)
+
+  // DEFAULT
+  showSection("active")
+
+</script>
+
+</body>
 </html>
