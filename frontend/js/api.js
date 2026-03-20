@@ -1,52 +1,50 @@
+const BASE_URL = "http://127.0.0.1:8000";
+
 const API = {
-  generateToken: async () => ({ token: Math.floor(Math.random() * 100) }),
 
-  sendOTP: async (phone) => ({ success: true }),
-
-  verifyOTP: async (phone, otp) => ({ success: true }),
-
+  // 🛒 CREATE ORDER
   placeOrder: async (data) => {
-    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    let res = await fetch(`${BASE_URL}/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
 
-    let newOrder = {
-      orderId: "ORD" + Date.now(),
-      user: data.user || {},
-      cart: data.cart || [],
-      token: data.token || "",
-      status: data.status || "QUEUE",
-    };
-
-    orders.push(newOrder);
-
-    localStorage.setItem("orders", JSON.stringify(orders));
-
-    return { orderId: newOrder.orderId };
+    return res.json();
   },
 
-  getOrderStatus: async () => ({
-    status: "QUEUE",
-  }),
-
-  getActiveOrders: async () => [],
-
-  updateOrderStatus: async () => ({ success: true }),
-
-  verifyDeliveryOTP: async () => ({ success: true }),
-
-  getCompletedOrders: async () => [],
-
-  getLogs: async () => [],
-
+  // 🔍 GET ORDER BY PHONE
   getUserOrder: async (phone) => {
-    let orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-    // ✅ SAFE FILTER (prevents crash)
-    let userOrders = orders.filter(
-      (order) => order.user && order.user.phone === phone,
-    );
-
-    if (userOrders.length === 0) return null;
-
-    return userOrders[userOrders.length - 1];
+    let res = await fetch(`${BASE_URL}/orders/phone/${phone}`);
+    return res.json();
   },
+
+  // 📦 GET ALL ORDERS (ADMIN / DISPLAY)
+  getOrders: async () => {
+    let res = await fetch(`${BASE_URL}/orders`);
+    return res.json();
+  },
+
+  // 🔄 UPDATE STATUS (ADMIN)
+  updateOrderStatus: async (orderId, status) => {
+    let res = await fetch(`${BASE_URL}/orders/${orderId}/status`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+
+    return res.json();
+  },
+
+  // 🔐 VERIFY OTP
+  verifyDeliveryOTP: async (orderId, otp) => {
+    let res = await fetch(`${BASE_URL}/orders/${orderId}/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ otp }),
+    });
+
+    return res.json();
+  }
+
 };

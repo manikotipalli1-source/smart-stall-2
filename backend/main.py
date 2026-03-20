@@ -1,9 +1,19 @@
 from fastapi import FastAPI
 from database import orders_collection
 from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Request
+
 import random
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # 🏠 ROOT
 @app.get("/")
@@ -12,8 +22,21 @@ def home():
 
 
 # 🛒 CREATE ORDER
+
 @app.post("/orders")
-def create_order(data: dict):
+async def create_order(request: Request):
+
+    print("🔥 RAW REQUEST RECEIVED")
+    
+    data = await request.json()
+    
+    print("🔥 DATA:", data)
+    # 🛡️ VALIDATION
+    if not data.get("user") or not data.get("cart"):
+        return {"error": "Invalid access place complete order properly"}
+
+    if len(data.get("cart")) == 0:
+        return {"error": "Cart is empty"}
 
     # 🎟️ Generate token
     token = random.randint(1, 100)
@@ -24,7 +47,7 @@ def create_order(data: dict):
         "cart": data.get("cart"),
         "token": token,
         "status": "QUEUE",
-        "otp": "1234",  # temp
+        "otp": "1234",
         "createdAt": str(datetime.now())
     }
 

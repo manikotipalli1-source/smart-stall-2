@@ -1,146 +1,159 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>StallX Cart</title>
+    <title>StallX Cart</title>
 
-<link rel="stylesheet" href="css/global.css">
-<link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
 
-</head>
+  <body>
+    <div class="container">
+      <h2>Your Cart</h2>
 
-<body>
+      <!-- 🛒 CART ITEMS -->
+      <div id="cartItems"></div>
 
-<div class="container">
+      <!-- 💰 TOTAL -->
+      <h3 id="totalPrice">Total: ₹0</h3>
 
-  <h2>Your Cart</h2>
+      <!-- 👤 USER DETAILS -->
+      <div class="card">
+        <input id="name" class="input" placeholder="Enter Your Name" />
+        <input id="phone" class="input" placeholder="Enter Phone Number" />
+      </div>
 
-  <!-- 🛒 CART ITEMS -->
-  <div id="cartItems"></div>
+      <!-- ACTION BUTTONS -->
+      <div class="menu-actions">
+        <button onclick="goBack()">⬅ Back</button>
+        <button onclick="proceed()">Proceed to Payment ➜</button>
+      </div>
+    </div>
 
-  <!-- 💰 TOTAL -->
-  <h3 id="totalPrice">Total: ₹0</h3>
+    <!-- ⚙️ CORE JS -->
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
 
-  <!-- 👤 USER DETAILS -->
-  <div class="card">
+    <script>
+      // 🛒 INIT CART
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    <input id="name" class="input" placeholder="Enter Your Name">
-    <input id="phone" class="input" placeholder="Enter Phone Number">
+      if (!Array.isArray(cart)) {
+        cart = [];
+        localStorage.setItem("cart", JSON.stringify(cart));
+      }
 
-  </div>
+      // 📦 LOAD CART ITEMS
+      function loadCart() {
+        let container = document.getElementById("cartItems");
+        container.innerHTML = "";
 
-  <!-- ACTION BUTTONS -->
-  <div class="menu-actions">
-    <button onclick="goBack()">⬅ Back</button>
-    <button onclick="proceed()">Proceed to Payment ➜</button>
-  </div>
+        let total = 0;
 
-</div>
+        if (cart.length === 0) {
+          container.innerHTML = "<p>Your cart is empty</p>";
+          document.getElementById("totalPrice").innerText = "Total: ₹0";
+          return;
+        }
 
-<!-- ⚙️ CORE JS -->
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
+        cart.forEach((item, index) => {
+          total += item.price * item.qty;
 
-<script>
+          let div = document.createElement("div");
+          div.className = "food-card";
 
-  // 🛒 INIT CART
-  let cart = JSON.parse(localStorage.getItem("cart"))
-
-  if (!cart || !Array.isArray(cart)) {
-    cart = []
-    localStorage.setItem("cart", JSON.stringify(cart))
-  }
-
-  // 📦 LOAD CART ITEMS
-  function loadCart() {
-
-    let container = document.getElementById("cartItems")
-    container.innerHTML = ""
-
-    let total = 0
-
-    if (cart.length === 0) {
-      container.innerHTML = "<p>Your cart is empty</p>"
-      document.getElementById("totalPrice").innerText = "Total: ₹0"
-      return
-    }
-
-    cart.forEach((item, index) => {
-
-      total += item.price * item.qty
-
-      let div = document.createElement("div")
-      div.className = "food-card"
-
-      div.innerHTML = `
+          div.innerHTML = `
         <h3>${item.name}</h3>
         <p>₹${item.price} × ${item.qty}</p>
         <button class="cart-btn" onclick="removeItem(${index})">
           Remove
         </button>
-      `
+      `;
 
-      container.appendChild(div)
-    })
+          container.appendChild(div);
+        });
 
-    document.getElementById("totalPrice").innerText = "Total: ₹" + total
-  }
+        document.getElementById("totalPrice").innerText = "Total: ₹" + total;
+      }
 
-  loadCart()
+      loadCart();
 
-  // ❌ REMOVE ITEM
-  function removeItem(index) {
+      // ❌ REMOVE ITEM
+      function removeItem(index) {
+        cart.splice(index, 1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        loadCart();
+      }
 
-    cart.splice(index, 1)
+      // 💳 PROCEED TO PAYMENT (BACKEND CONNECTED)
+      async function proceed() {
+        let name = document.getElementById("name").value;
+        let phone = document.getElementById("phone").value;
 
-    localStorage.setItem("cart", JSON.stringify(cart))
+        // 🔍 DEBUG
+        console.log("CART:", cart);
+        console.log("USER:", name, phone);
 
-    loadCart()
-  }
+        // ✅ Validation
+        if (!name || !phone) {
+          alert("Please enter name and phone");
+          return;
+        }
 
-  // 💳 PROCEED TO PAYMENT
-  function proceed() {
+        if (cart.length === 0) {
+          alert("Cart is empty");
+          return;
+        }
 
-    let name = document.getElementById("name").value
-    let phone = document.getElementById("phone").value
+        // 💳 Simulated payment confirmation
+        let confirmPayment = confirm("Proceed to payment?");
+        if (!confirmPayment) return;
 
-    // ✅ Validation
-    if (!name || !phone) {
-      alert("Please enter name and phone")
-      return
-    }
+        // 📦 Prepare order data
+        let orderData = {
+          user: {
+            name: name,
+            phone: phone,
+          },
+          cart: cart,
+        };
 
-    if (cart.length === 0) {
-      alert("Cart is empty")
-      return
-    }
+        console.log("SENDING:", orderData);
 
-    // 💳 SIMULATED PAYMENT
-    let confirmPayment = confirm("Proceed to payment?")
+        try {
+          // 🔥 CALL BACKEND
+          let res = await API.placeOrder(orderData);
 
-    if (!confirmPayment) return
+          console.log("RESPONSE:", res);
 
-    // 🟢 Payment success
-    localStorage.setItem("paymentDone", "true")
+          // ❗ Backend error handling
+          if (res.error) {
+            alert(res.error);
+            return;
+          }
 
-    // 👤 Save user
-    localStorage.setItem("user", JSON.stringify({
-      name: name,
-      phone: phone
-    }))
+          // ✅ Save important data
+          localStorage.setItem("orderId", res.orderId);
+          localStorage.setItem("token", res.token);
 
-    // ➡️ Go to confirmation page
-    navigate("confirmation.html")
-  }
+          // 🧹 Clear cart
+          localStorage.removeItem("cart");
 
-  // 🔙 BACK
-  function goBack() {
-    navigate("menu.html")
-  }
+          // ➡️ Navigate to confirmation
+          navigate("confirmation.html");
+        } catch (err) {
+          console.error("FETCH ERROR:", err);
+          alert("Backend connection failed");
+        }
+      }
 
-</script>
-
-</body>
+      // 🔙 BACK
+      function goBack() {
+        navigate("menu.html");
+      }
+    </script>
+  </body>
 </html>
